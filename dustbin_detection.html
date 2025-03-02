@@ -3,6 +3,192 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BinSight - Waste Management</title>
+    <script src="https://www.gstatic.com/firebasejs/9.17.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.17.2/firebase-database-compat.js"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        /* ✅ Fix: Ensure full page is scrollable */
+        html, body {
+            width: 100%;
+            min-height: 100vh; /* ✅ Allows content to expand */
+            background-color: #f8f9fa;
+            overflow-x: hidden;
+            overflow-y: auto; /* ✅ Enables scrolling */
+        }
+
+        .container {
+            width: 100%;
+            max-width: 400px;
+            background: #fff;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            margin: 20px auto;
+        }
+
+        h2 {
+            font-size: 20px;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        input, button {
+            width: 100%;
+            padding: 8px;
+            margin: 6px 0;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+        input {
+            border: 1px solid #ccc;
+        }
+
+        button {
+            background: #28a745;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #218838;
+        }
+
+        p {
+            font-size: 12px;
+            color: #555;
+        }
+
+        /* ✅ Fix: Ensure iframe is scrollable */
+        .iframe-container {
+            width: 100%;
+            height: 90vh; /* ✅ Full viewport height */
+            overflow-y: auto; /* ✅ Allows scrolling inside iframe */
+        }
+
+        iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h2>📍 Location Detection</h2>
+        <button onclick="getUserLocation()">Use My Current Location</button>
+        
+        <p><strong>OR</strong></p>
+        
+        <input type="text" id="manual_latitude" placeholder="Enter Latitude">
+        <input type="text" id="manual_longitude" placeholder="Enter Longitude">
+        <input type="text" id="manual_address" placeholder="Enter Address">
+        <button onclick="setManualLocation()">Use Manual Location</button>
+
+        <p id="location_status"></p>
+        <p id="coordinates"></p>
+        <p id="address"></p>
+    </div>
+
+    <div class="container" style="width: 100%; max-width: none; padding: 0; background: none; box-shadow: none;">
+        <h2 style="text-align: center;">🗑 Waste Management</h2>
+    </div>
+
+    <div class="iframe-container">
+        <iframe id="streamlitFrame" src=""></iframe>
+    </div>
+
+    <script>
+        function getUserLocation() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(async function(position) {
+                    const latitude = position.coords.latitude;
+                    const longitude = position.coords.longitude;
+
+                    document.getElementById("location_status").innerText = "✅ Location detected!";
+                    document.getElementById("coordinates").innerText = `📍 Lat: ${latitude}, Lon: ${longitude}`;
+
+                    try {
+                        const response = await axios.get(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`);
+                        const address = response.data.display_name;
+                        document.getElementById("address").innerText = `📍 Address: ${address}`;
+                        
+                        updateStreamlitURL(latitude, longitude, address);
+                    } catch (error) {
+                        document.getElementById("address").innerText = "⚠️ Error fetching address.";
+                    }
+                }, function(error) {
+                    document.getElementById("location_status").innerText = "⚠️ Error detecting location. Enable GPS.";
+                });
+            } else {
+                document.getElementById("location_status").innerText = "❌ Geolocation not supported.";
+            }
+        }
+
+        function setManualLocation() {
+            const latitude = document.getElementById("manual_latitude").value;
+            const longitude = document.getElementById("manual_longitude").value;
+            const address = document.getElementById("manual_address").value;
+
+            if (!latitude || !longitude || !address) {
+                document.getElementById("location_status").innerText = "⚠️ Please enter all manual location details.";
+                return;
+            }
+
+            document.getElementById("location_status").innerText = "✅ Manual location set!";
+            document.getElementById("coordinates").innerText = `📍 Lat: ${latitude}, Lon: ${longitude}`;
+            document.getElementById("address").innerText = `📍 Address: ${address}`;
+
+            updateStreamlitURL(latitude, longitude, address);
+        }
+
+        function updateStreamlitURL(latitude, longitude, address) {
+            const streamlitFrame = document.getElementById("streamlitFrame");
+            streamlitFrame.src = `https://krish-upgrix-binsight-image-recognition-waste-detection.hf.space/?lat=${latitude}&lon=${longitude}&addr=${encodeURIComponent(address)}`;
+        }
+    </script>
+
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!--Old version  -->
+
+<!-- <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BinSight - Upload Dustbin Image</title>
     <script src="https://www.gstatic.com/firebasejs/9.17.2/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.17.2/firebase-auth-compat.js"></script>
@@ -226,3 +412,4 @@
     </script>
 </body>
 </html>
+ -->
